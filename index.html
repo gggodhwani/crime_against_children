@@ -35,46 +35,48 @@
 			<h3>Displaying Data of Year 2012</h3>
 			<div style="width:1170px; height:800px" id="map"></div>
 		</div>	
-		<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+		<script src="assets/js/google-maps.js"></script>
+		<script src="assets/js/jquery.min.js" type="text/javascript"></script>
 		<script src="assets/js/bootstrap.min.js"></script>
 		<script src="assets/js/leaflet.js"></script>
 		<script src="assets/js/leaflet.markercluster-src.js"></script>
-		<script src="http://maps.google.com/maps/api/js?v=3.2&sensor=false"></script>
 		<script src="assets/js/leaflet-google.js"></script>
 		<script type="text/javascript">
 			var map = new L.Map('map', {center: new L.LatLng(22, 78), zoom: 5});
 			var googleLayer = new L.Google('ROADMAP');
 			map.addLayer(googleLayer);
 			var markers = L.markerClusterGroup();
-			var cities = null
+			var marker_list = [];
+			var cities;
+			var year = "2012";
 			$.getJSON("assets/data/geodata.json", function(json){
 				cities = json;
 			});
 			$.getJSON("assets/data/data.json", function(crimes){
-				for(index in crimes.data) 
+				for(state in crimes.data[year])
 				{
-					crime = crimes.data[index];
-					var state = crime[0];		
-					var city = crime[1];
-					var year = crime[2];
-					if(year == "2012")
-					{		
+					marker_list = []
+					for(crime_index in crimes.data[year][state])
+					{
+						crime = crimes.data[year][state][crime_index];
+						var city = crime[0];
 						if(state == "DELHI" || state == "SIKKIM")	
 						{
-							city = state + " " + city 
+							city = state + " " + city; 
 						}
 						if(cities[city] != null)
 						{
-							for(var i=1; i <= parseInt(crime[14]); i++)
+							for(var i=1; i <= parseInt(crime[12]); i++)
 							{
 								var marker = L.marker(new L.LatLng(cities[city][0], cities[city][1]), { title: city });
 								marker.bindPopup(city);
-								markers.addLayer(marker);
+								marker_list.push(marker);
 							}
 						}
 					}
+					markers.addLayers(marker_list);
 				}
-			});
+			});	
 			map.addLayer(markers);
 		</script>
 	</body>	
