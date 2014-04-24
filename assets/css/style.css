@@ -24,12 +24,16 @@ h3, h4
 	display: block;
 	position: absolute;
 	z-index: 1000;
-	left: 700px;
-	top: 400px;
+	top: 550px;
 	width: 300px;
 	height: 20px;
-	margin-top: -20px;
-	margin-left: -100px;
+	margin-left: 28%;
+	margin-right: auto;
 	border-radius: 4px;
 	padding: 2px;
 }
+
+select
+{
+	display: none;
+}	

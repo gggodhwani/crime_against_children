@@ -9,6 +9,7 @@
 		<link href="assets/css/leaflet.css" rel="stylesheet">
 		<link href="assets/css/MarkerCluster.css" rel="stylesheet">
 		<link href="assets/css/MarkerCluster.Default.css" rel="stylesheet">
+		<link href="assets/css/bootstrap-select.min.css" rel="stylesheet">
 		<link href="assets/css/style.css" rel="stylesheet">
 	</head>
 	<body>
@@ -29,7 +30,16 @@
 			<div>
 				<p class="lead">The data has been taken from <a href="http://data.gov.in/">Open Government Data (OGD) Platform India</a> and refers to details on district wise crimes against Children under various crime categories such as Murder, Rape, Kidnapping and Abduction, Foeticide, Abetment of suicide, Exposure and abandonment, Procuration of minor girls, Buying of girls for prostitution, Selling of girls for prostitution, Prohibition of child marriage act and Other Crimes.</p>
 			</div>
-			<h4>Displaying Data of Year 2012</h4>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Displaying Data of Year 2012</h3>
+				</div>
+				<div class="panel-body">
+					<select id="states_list" class="selectpicker">
+						<option selected="selected">Focus on a State</option> 
+					</select>
+				</div>
+			</div>
 			<div id="progress" class="progress progress-striped active"><div id="progress-bar" class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width: 30%"><span class="sr-only">Loading...</span></div></div>
 			<div id="map"></div>
 		</div>	
@@ -39,6 +49,7 @@
 		<script src="assets/js/leaflet.js"></script>
 		<script src="assets/js/leaflet.markercluster-src.js"></script>
 		<script src="assets/js/leaflet-google.js"></script>
+		<script src="assets/js/bootstrap-select.min.js"></script>
 		<script type="text/javascript">
 			var googleLayer = new L.Google('ROADMAP');
 			var map = new L.Map('map', {center: new L.LatLng(22, 78), zoom: 5});
@@ -50,7 +61,6 @@
 			{
 				if (elapsed > 5) 
 				{
-					// if it takes more than a second to load, display the progress bar:
 					progress.style.display = 'block';
 					loaded_value = Math.round(processed/total*1000)
 					progressBar.style.width = loaded_value + '%';
@@ -75,7 +85,8 @@
 			$.getJSON("assets/data/data.json", function(crimes){
 				for(state in crimes.data[year])
 				{
-					marker_list = []
+					marker_list = [];
+					$("#states_list").append('<option value="' + state.toLowerCase().replace(/ /g, "_") +'">' + state + '</option>');
 					for(crime_index in crimes.data[year][state])
 					{
 						crime = crimes.data[year][state][crime_index];
@@ -97,8 +108,37 @@
 					markers.addLayers(marker_list);
 				}
 				map.addLayer(markers);
+				$('select').show();
+				$('select').selectpicker();
 			});	
+			var polygon_layer = null;
+			$("#states_list").change(function()
+			{
+				if(polygon_layer != null)
+				{
+					map.removeLayer(polygon_layer);
+				}
+				state_file = $("#states_list option:selected").val();
+				$.getJSON("assets/data/state_boundaries/" + state_file + ".json", function(json){
+					polygon_layer = L.polygon(json["coordinates"], {weight: 1, fillOpacity: 0.15});
+					map.addLayer(polygon_layer);
+					area = parseFloat(json["area_sqkm"]);
+					zoom_level = 7;
+					if(area < 5000)
+					{
+						zoom_level = 10;
+					}
+					else if(area < 10000)
+					{
+						zoom_level = 9;
+					}
+					else if(area < 20000)
+					{
+						zoom_level = 8;
+					}
+					map.setView(new L.LatLng(json["center"][0], json["center"][1]), zoom_level);
+				});
+			});
 		</script>
 	</body>	
 </html>
-
