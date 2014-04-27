@@ -120,7 +120,15 @@
 				}
 				state_file = $("#states_list option:selected").val();
 				$.getJSON("assets/data/state_boundaries/" + state_file + ".json", function(json){
-					polygon_layer = L.polygon(json["coordinates"], {weight: 1, fillOpacity: 0.15});
+					polygon_features = {weight: 1, fillOpacity: 0.15}; 
+					if(json["type"] = "MultiPolygon")
+					{
+						polygon_layer = L.multiPolygon(json["coordinates"], polygon_features); 
+					}
+					else
+					{
+						polygon_layer = L.polygon(json["coordinates"], polygon_features);
+					}	
 					map.addLayer(polygon_layer);
 					area = parseFloat(json["area_sqkm"]);
 					zoom_level = 7;
