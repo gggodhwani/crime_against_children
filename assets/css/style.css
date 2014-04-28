@@ -33,7 +33,7 @@ h3, h4
 	padding: 2px;
 }
 
-select
+#select-panel
 {
 	display: none;
 }	

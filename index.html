@@ -30,28 +30,51 @@
 			<div>
 				<p class="lead">The data has been taken from <a href="http://data.gov.in/">Open Government Data (OGD) Platform India</a> and refers to details on district wise crimes against Children under various crime categories such as Murder, Rape, Kidnapping and Abduction, Foeticide, Abetment of suicide, Exposure and abandonment, Procuration of minor girls, Buying of girls for prostitution, Selling of girls for prostitution, Prohibition of child marriage act and Other Crimes.</p>
 			</div>
-			<div class="panel panel-default">
+			<div id="select-panel" class="panel panel-default">
 				<div class="panel-heading">
-					<h3 class="panel-title">Displaying Data of Year 2012</h3>
+					<h3 id="select-panel-title" class="panel-title"></h3>
 				</div>
 				<div class="panel-body">
-					<select id="year_list" class="selectpicker">
-						<option selected="selected">2012</option> 
-						<option>2011</option> 
-						<option>2010</option> 
-						<option>2009</option> 
-						<option>2008</option> 
-						<option>2007</option> 
-						<option>2006</option> 
-						<option>2005</option> 
-						<option>2004</option> 
-						<option>2003</option> 
-						<option>2002</option> 
-						<option>2001</option> 
-					</select>
-					<select id="states_list" class="selectpicker">
+                                        <div class="col-xs-4">
+					    <span class="panel-title">Year:</span>
+                                            <select id="year-list" class="selectpicker">
+						    <option selected="selected">2012</option> 
+						    <option>2011</option> 
+						    <option>2010</option> 
+						    <option>2009</option> 
+						    <option>2008</option> 
+						    <option>2007</option> 
+						    <option>2006</option> 
+						    <option>2005</option> 
+						    <option>2004</option> 
+						    <option>2003</option> 
+			        		    <option>2002</option> 
+					    	    <option>2001</option> 
+    					    </select>
+                                        </div>  
+                                        <div class="col-xs-4">
+					    <span class="panel-title">State:</span>
+        				    <select id="states-list" class="selectpicker">
 						<option selected="selected" value="default">Focus on a State</option> 
-					</select>
+					    </select>
+                                        </div>  
+                                        <div class="col-xs-4">
+					    <span class="panel-title">Crime type:</span>
+                                            <select id="crime-type-list" class="selectpicker">
+						    <option selected="selected" value="12">Total</option> 
+						    <option value="1">Murder</option> 
+						    <option value="2">Rape</option> 
+						    <option value="3">Kidnapping and Abduction</option> 
+						    <option value="4">Foeticide</option> 
+						    <option value="5">Abetment of suicide</option> 
+						    <option value="6">Exposure and abandonment</option> 
+						    <option value="7">Procuration of minor girls</option> 
+						    <option value="8">Buying of girls for prostitution</option> 
+						    <option value="9">Selling of girls for prostitution</option> 
+						    <option value="10">Prohibition of child marriage act</option> 
+						    <option value="11">Other Crimes</option> 
+    					    </select>
+                                        </div>  
 				</div>
 			</div>
 			<div id="progress" class="progress progress-striped active"><div id="progress-bar" class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width: 30%">Loading</div></div>
@@ -89,14 +112,15 @@
 			var marker_list = [];
 			var is_states_populated = false;
                         var cities;
-			var year = "2012";
 			$.getJSON("assets/data/geodata.json", function(json){
 				cities = json;
 			});
-                        populate_map_for_year(year);
-                        function populate_map_for_year(year)
+                        populate_map_for_year();
+                        function populate_map_for_year()
                         {
-			    if(markers != null)
+		            var year = $("#year-list option:selected").text();
+			    var crime_type_index = parseInt($("#crime-type-list option:selected").val());
+                            if(markers != null)
 			    {
 			        map.removeLayer(markers);
 			    }
@@ -105,9 +129,10 @@
                                 for(state in crimes.data[year])
                                 {
                                     marker_list = [];
+                                    $("#select-panel-title").text("Displaying Data of Year " + year);
                                     if(!is_states_populated)
                                     {    
-                                        $("#states_list").append('<option value="' + state.toLowerCase().replace(/ /g, "_") +'">' + state + '</option>');
+                                        $("#states-list").append('<option value="' + state.toLowerCase().replace(/ /g, "_") +'">' + state + '</option>');
                                     }
                                     for(crime_index in crimes.data[year][state])
                                     {
@@ -119,7 +144,7 @@
                                         }
                                         if(cities[city] != null)
                                         {
-                                            for(var i=1; i <= parseInt(crime[12]); i++)
+                                            for(var i=1; i <= parseInt(crime[crime_type_index]); i++)
                                             {
                                                 var marker = L.marker(new L.LatLng(cities[city][0], cities[city][1]), { title: city });
                                                 marker.bindPopup(city);
@@ -132,25 +157,28 @@
                                 map.addLayer(markers);
                                 if(!is_states_populated)
                                 {    
-                                    $('select').show();
+                                    $('#select-panel').show();
                                     $('select').selectpicker();
                                     is_states_populated = true;
                                 }
                             });
                         }    	
-			$("#year_list").change(function()
+			$("#year-list").change(function()
 			{
-			    year = $("#year_list option:selected").text();
-                            populate_map_for_year(year);
+                            populate_map_for_year();
 			});
                         var selected_state_layer = null;
-			$("#states_list").change(function()
+			$("#crime-type-list").change(function()
+			{
+                            populate_map_for_year();
+			});
+			$("#states-list").change(function()
 			{
 				if(selected_state_layer != null)
 				{
 					map.removeLayer(selected_state_layer);
 				}
-				state_name = $("#states_list option:selected").val();
+				state_name = $("#states-list option:selected").val();
                                 if(state_name == "default")
                                 {
 
@@ -168,7 +196,11 @@
 					map.addLayer(selected_state_layer);
 					area = parseFloat(json["area_sqkm"]);
 					zoom_level = 7;
-					if(area < 5000)
+					if(area < 1000)
+                                        {
+						zoom_level = 12;
+                                        }         
+                                        else if(area < 5000)
 					{
 						zoom_level = 10;
 					}
