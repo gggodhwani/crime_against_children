@@ -35,12 +35,26 @@
 					<h3 class="panel-title">Displaying Data of Year 2012</h3>
 				</div>
 				<div class="panel-body">
+					<select id="year_list" class="selectpicker">
+						<option selected="selected">2012</option> 
+						<option>2011</option> 
+						<option>2010</option> 
+						<option>2009</option> 
+						<option>2008</option> 
+						<option>2007</option> 
+						<option>2006</option> 
+						<option>2005</option> 
+						<option>2004</option> 
+						<option>2003</option> 
+						<option>2002</option> 
+						<option>2001</option> 
+					</select>
 					<select id="states_list" class="selectpicker">
-						<option selected="selected">Focus on a State</option> 
+						<option selected="selected" value="default">Focus on a State</option> 
 					</select>
 				</div>
 			</div>
-			<div id="progress" class="progress progress-striped active"><div id="progress-bar" class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width: 30%"><span class="sr-only">Loading...</span></div></div>
+			<div id="progress" class="progress progress-striped active"><div id="progress-bar" class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width: 30%">Loading</div></div>
 			<div id="map"></div>
 		</div>	
 		<script src="assets/js/google-maps.js"></script>
@@ -62,7 +76,7 @@
 				if (elapsed > 5) 
 				{
 					progress.style.display = 'block';
-					loaded_value = Math.round(processed/total*1000)
+					loaded_value = Math.round(processed/total*500)
 					progressBar.style.width = loaded_value + '%';
 				}
 				if (processed === total) 
@@ -71,65 +85,87 @@
 					progress.style.display = 'none';
 				}
 			}
-			function executeAsync(func) 
-			{
-				setTimeout(func, 100);
-			}
-			var markers = L.markerClusterGroup({ chunkedLoading: true, chunkProgress: updateProgressBar, maxClusterRadius: 60});
+			var markers = null;
 			var marker_list = [];
-			var cities;
+			var is_states_populated = false;
+                        var cities;
 			var year = "2012";
 			$.getJSON("assets/data/geodata.json", function(json){
 				cities = json;
 			});
-			$.getJSON("assets/data/data.json", function(crimes){
-				for(state in crimes.data[year])
-				{
-					marker_list = [];
-					$("#states_list").append('<option value="' + state.toLowerCase().replace(/ /g, "_") +'">' + state + '</option>');
-					for(crime_index in crimes.data[year][state])
-					{
-						crime = crimes.data[year][state][crime_index];
-						var city = crime[0];
-						if(state == "DELHI" || state == "SIKKIM")	
-						{
-							city = state + " " + city; 
-						}
-						if(cities[city] != null)
-						{
-							for(var i=1; i <= parseInt(crime[12]); i++)
-							{
-									var marker = L.marker(new L.LatLng(cities[city][0], cities[city][1]), { title: city });
-									marker.bindPopup(city);
-									marker_list.push(marker);
-							}
-						}
-					}
-					markers.addLayers(marker_list);
-				}
-				map.addLayer(markers);
-				$('select').show();
-				$('select').selectpicker();
-			});	
-			var polygon_layer = null;
+                        populate_map_for_year(year);
+                        function populate_map_for_year(year)
+                        {
+			    if(markers != null)
+			    {
+			        map.removeLayer(markers);
+			    }
+			    markers = L.markerClusterGroup({ chunkedLoading: true, chunkProgress: updateProgressBar, maxClusterRadius: 60});
+                            $.getJSON("assets/data/yearwise_crime_data/" + year +".json", function(crimes){
+                                for(state in crimes.data[year])
+                                {
+                                    marker_list = [];
+                                    if(!is_states_populated)
+                                    {    
+                                        $("#states_list").append('<option value="' + state.toLowerCase().replace(/ /g, "_") +'">' + state + '</option>');
+                                    }
+                                    for(crime_index in crimes.data[year][state])
+                                    {
+                                        crime = crimes.data[year][state][crime_index];
+                                        var city = crime[0];
+                                        if(state == "DELHI" || state == "SIKKIM")	
+                                        {
+                                            city = state + " " + city; 
+                                        }
+                                        if(cities[city] != null)
+                                        {
+                                            for(var i=1; i <= parseInt(crime[12]); i++)
+                                            {
+                                                var marker = L.marker(new L.LatLng(cities[city][0], cities[city][1]), { title: city });
+                                                marker.bindPopup(city);
+                                                marker_list.push(marker);
+                                            }
+                                        }
+                                    }       
+                                    markers.addLayers(marker_list);
+                                }
+                                map.addLayer(markers);
+                                if(!is_states_populated)
+                                {    
+                                    $('select').show();
+                                    $('select').selectpicker();
+                                    is_states_populated = true;
+                                }
+                            });
+                        }    	
+			$("#year_list").change(function()
+			{
+			    year = $("#year_list option:selected").text();
+                            populate_map_for_year(year);
+			});
+                        var selected_state_layer = null;
 			$("#states_list").change(function()
 			{
-				if(polygon_layer != null)
+				if(selected_state_layer != null)
 				{
-					map.removeLayer(polygon_layer);
+					map.removeLayer(selected_state_layer);
 				}
-				state_file = $("#states_list option:selected").val();
-				$.getJSON("assets/data/state_boundaries/" + state_file + ".json", function(json){
+				state_name = $("#states_list option:selected").val();
+                                if(state_name == "default")
+                                {
+
+                                }
+				$.getJSON("assets/data/state_boundaries/" + state_name + ".json", function(json){
 					polygon_features = {weight: 1, fillOpacity: 0.15}; 
 					if(json["type"] = "MultiPolygon")
 					{
-						polygon_layer = L.multiPolygon(json["coordinates"], polygon_features); 
+						selected_state_layer = L.multiPolygon(json["coordinates"], polygon_features); 
 					}
 					else
 					{
-						polygon_layer = L.polygon(json["coordinates"], polygon_features);
+						selected_state_layer = L.polygon(json["coordinates"], polygon_features);
 					}	
-					map.addLayer(polygon_layer);
+					map.addLayer(selected_state_layer);
 					area = parseFloat(json["area_sqkm"]);
 					zoom_level = 7;
 					if(area < 5000)
