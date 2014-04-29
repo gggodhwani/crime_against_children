@@ -3,7 +3,8 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Crime Against Children in India</title>
-		<meta name="description" content="">
+		<meta name="description" content="An interactive map and visualizations for Crime Against Children in India"/>
+		<meta name="keywords" content="crimes against children, violence against children, crimes against children statistics, prevent child abuse, statistics of child abuse, child abuse awareness"/>
 		<link href="assets/css/bootstrap.min.css" rel="stylesheet">
 		<link href="assets/css/bootstrap-responsive.min.css" rel="stylesheet">
 		<link href="assets/css/leaflet.css" rel="stylesheet">
@@ -16,11 +17,12 @@
 		<div class="container">
 			<div class="mashead">
 				<h3>Crime Against Children in India</h3>
-				<nav class="navbar navbar-default" role="navigation">
+				<nav class="navbar navbar-inverse" role="navigation">
 					<div class="collapse navbar-collapse">
 						<ul id="menu-tab" class="nav navbar-nav">
 							<li class="active"><a href="#home">Home</a></li>
 							<li><a href="#about">About Us</a></li>
+							<li><a href="http://www.github.com/gggodhwani/crime_against_children" target="_blank">Code</a></li>
 						</ul>
 					</div>	
 				</nav>	
@@ -40,7 +42,7 @@
 				    <div class="panel-heading">
 				        <h3 id="select-panel-title" class="panel-title"></h3>
 				    </div>
-				    <div class="panel-body">
+				    <div class="panel-body container-fluid">
                                         <div class="col-xs-4">
 					    <span class="panel-title">Year:</span>
                                             <select id="year-list" class="selectpicker">
@@ -87,21 +89,39 @@
 			        <div id="map"></div>
                             </div>
                             <div class="tab-pane" id="about">
-				<p class="lead">We are a group of data science enthusiasts who are helping NGOs collect and analyse their data to make better and informed data driven decisions and have larger impact.</p>
+				<p class="lead">We are a group of data science enthusiasts who are helping NGOs collect and analyse their data to make better and informed data driven decisions and have larger impact. If your NGO needs help with its data, please feel free to contact us:</p>
                                 <br/>
-                                <div>
+                                <div class="container-fluid">
                                     <div class="col-xs-4">
                                         <img src="assets/img/profiles/gaurav.png" class="img-circle"/> 
                                     </div>
-                                    <div class="col-xs-8">
+                                    <div class="col-xs-8 well well-lg">
                                         <h3>Gaurav Godhwani</h3>
-                                        <p class="lead">A technophillic with a vision to harness power of data science for human well being</p>
+                                        <p class="lead">A technophillic with a vision to harness power of data science for child welfare & human well being.</p>
                                         <a class="col-xs-1" href="mailto:gggodhwani@gmail.com" target="_blank"><img src="assets/img/icons/gmail.png"/></a>
                                         <a class="col-xs-1" href="http://github.com/gggodhwani" target="_blank"><img src="assets/img/icons/github.png"/></a>
-                                        <a class="col-xs-1" href="http://in.linkedin.com/pub/gaurav-godhwani/23/978/878" target="_blank"><img src="assets/img/icons/linkedin.png"/></a>
+                                        <a class="col-xs-1" href="http://www.linkedin.com/pub/gaurav-godhwani/23/978/878" target="_blank"><img src="assets/img/icons/linkedin.png"/></a>
                                         <a class="col-xs-1" href="http://twitter.com/gggodhwani" target="_blank"><img src="assets/img/icons/twitter.png"/></a>
                                     </div>
                                 </div>  
+                                <br/>
+                                <div class="container-fluid">
+                                    <div class="col-xs-4">
+                                        <img src="assets/img/profiles/somya.png" class="img-circle"/> 
+                                    </div>
+                                    <div class="col-xs-8 well well-lg">
+                                        <h3>Somya Gupta</h3>
+                                        <p class="lead">An idealist with a vision to empower children through technology and creative skill building.</p>
+                                        <a class="col-xs-1" href="mailto:somya.gupta1@gmail.com" target="_blank"><img src="assets/img/icons/gmail.png"/></a>
+                                        <a class="col-xs-1" href="http://github.com/psychosomyatic" target="_blank"><img src="assets/img/icons/github.png"/></a>
+                                        <a class="col-xs-1" href="http://www.linkedin.com/pub/somya-gupta/1b/272/326" target="_blank"><img src="assets/img/icons/linkedin.png"/></a>
+                                        <a class="col-xs-1" href="http://twitter.com/AweSomYa" target="_blank"><img src="assets/img/icons/twitter.png"/></a>
+                                    </div>
+                                </div>  
+                                <br/>
+				<div class="container-fluid">
+					<p class="lead" style="text-align: center;">Special thanks to <a href="http://www.linkedin.com/pub/nischal-mothkuri/61/9b1/589">Nischal Mothkuri</a> for helping with the content and <a href="http://www.linkedin.com/in/vinayjain7">Vinay Jain</a> for giving important suggestions.</p>
+				</div>	
                             </div>
                         </div>
 		</div>	
@@ -112,138 +132,12 @@
 		<script src="assets/js/leaflet.markercluster-src.js"></script>
 		<script src="assets/js/leaflet-google.js"></script>
 		<script src="assets/js/bootstrap-select.min.js"></script>
+		<script src="assets/js/main.js"></script>
 		<script type="text/javascript">
-			var googleLayer = new L.Google('ROADMAP');
-			var map = new L.Map('map', {center: new L.LatLng(22, 78), zoom: 5});
-			map.addLayer(googleLayer);
-			
-			var progress = document.getElementById('progress');
-			var progressBar = document.getElementById('progress-bar');
-			function updateProgressBar(processed, total, elapsed, layersArray)
-			{
-				if (elapsed > 5) 
-				{
-					progress.style.display = 'block';
-					loaded_value = Math.round(processed/total*500)
-					progressBar.style.width = loaded_value + '%';
-				}
-				if (processed === total) 
-				{
-					// all markers processed - hide the progress bar:
-					progress.style.display = 'none';
-				}
-			}
-			var markers = null;
-			var marker_list = [];
-			var is_states_populated = false;
-                        var cities;
-			$.getJSON("assets/data/geodata.json", function(json){
-				cities = json;
-			});
-                        populate_map_for_year();
-                        function populate_map_for_year()
-                        {
-		            var year = $("#year-list option:selected").text();
-			    var crime_type_index = parseInt($("#crime-type-list option:selected").val());
-                            if(markers != null)
-			    {
-			        map.removeLayer(markers);
-			    }
-			    markers = L.markerClusterGroup({ chunkedLoading: true, chunkProgress: updateProgressBar, maxClusterRadius: 60});
-                            $.getJSON("assets/data/yearwise_crime_data/" + year +".json", function(crimes){
-                                for(state in crimes.data[year])
-                                {
-                                    marker_list = [];
-                                    $("#select-panel-title").text("Displaying Data for the year " + year);
-                                    if(!is_states_populated)
-                                    {    
-                                        $("#states-list").append('<option value="' + state.toLowerCase().replace(/ /g, "_") +'">' + state + '</option>');
-                                    }
-                                    for(crime_index in crimes.data[year][state])
-                                    {
-                                        crime = crimes.data[year][state][crime_index];
-                                        var city = crime[0];
-                                        if(state == "DELHI" || state == "SIKKIM")	
-                                        {
-                                            city = state + " " + city; 
-                                        }
-                                        if(cities[city] != null)
-                                        {
-                                            for(var i=1; i <= parseInt(crime[crime_type_index]); i++)
-                                            {
-                                                var marker = L.marker(new L.LatLng(cities[city][0], cities[city][1]), { title: city });
-                                                marker.bindPopup(city);
-                                                marker_list.push(marker);
-                                            }
-                                        }
-                                    }       
-                                    markers.addLayers(marker_list);
-                                }
-                                map.addLayer(markers);
-                                if(!is_states_populated)
-                                {    
-                                    $('#select-panel').show();
-                                    $('select').selectpicker();
-                                    is_states_populated = true;
-                                }
-                            });
-                        }    	
-			$("#year-list").change(function()
-			{
-                            populate_map_for_year();
-			});
-                        var selected_state_layer = null;
-			$("#crime-type-list").change(function()
-			{
-                            populate_map_for_year();
-			});
-			$("#states-list").change(function()
-			{
-				if(selected_state_layer != null)
-				{
-					map.removeLayer(selected_state_layer);
-				}
-				state_name = $("#states-list option:selected").val();
-                                if(state_name == "default")
-                                {
-
-                                }
-				$.getJSON("assets/data/state_boundaries/" + state_name + ".json", function(json){
-					polygon_features = {weight: 1, fillOpacity: 0.15}; 
-					if(json["type"] = "MultiPolygon")
-					{
-						selected_state_layer = L.multiPolygon(json["coordinates"], polygon_features); 
-					}
-					else
-					{
-						selected_state_layer = L.polygon(json["coordinates"], polygon_features);
-					}	
-					map.addLayer(selected_state_layer);
-					area = parseFloat(json["area_sqkm"]);
-					zoom_level = 7;
-					if(area < 1000)
-                                        {
-						zoom_level = 12;
-                                        }         
-                                        else if(area < 5000)
-					{
-						zoom_level = 10;
-					}
-					else if(area < 10000)
-					{
-						zoom_level = 9;
-					}
-					else if(area < 20000)
-					{
-						zoom_level = 8;
-					}
-					map.setView(new L.LatLng(json["center"][0], json["center"][1]), zoom_level);
-				});
-			});
-                        $('#menu-tab a').click(function (e) {
-                              e.preventDefault()
-                                $(this).tab('show')
-                        })
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+				ga('create', 'UA-50476965-1', 'gggodhwani.github.io');
+    				ga('send', 'pageview');
 		</script>
 	</body>	
 </html>
