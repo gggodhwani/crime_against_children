@@ -24,7 +24,7 @@ h3, h4
 	display: block;
 	position: absolute;
 	z-index: 1000;
-	top: 550px;
+	top: 650px;
 	width: 300px;
 	height: 20px;
 	margin-left: 28%;
@@ -36,4 +36,10 @@ h3, h4
 #select-panel
 {
 	display: none;
-}	
+}
+
+.lead
+{
+    font-size: 18px;
+    text-align: justify;
+}

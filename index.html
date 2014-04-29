@@ -18,23 +18,29 @@
 				<h3>Crime Against Children in India</h3>
 				<nav class="navbar navbar-default" role="navigation">
 					<div class="collapse navbar-collapse">
-						<ul class="nav navbar-nav">
-							<li class="active"><a href="#">Home</a></li>
-							<li><a href="#">Visualizations</a></li>
-							<li><a href="#">About Us</a></li>
+						<ul id="menu-tab" class="nav navbar-nav">
+							<li class="active"><a href="#home">Home</a></li>
+							<li><a href="#about">About Us</a></li>
 						</ul>
 					</div>	
 				</nav>	
 			</div>	
-
-			<div>
-				<p class="lead">The data has been taken from <a href="http://data.gov.in/">Open Government Data (OGD) Platform India</a> and refers to details on district wise crimes against Children under various crime categories such as Murder, Rape, Kidnapping and Abduction, Foeticide, Abetment of suicide, Exposure and abandonment, Procuration of minor girls, Buying of girls for prostitution, Selling of girls for prostitution, Prohibition of child marriage act and Other Crimes.</p>
-			</div>
-			<div id="select-panel" class="panel panel-default">
-				<div class="panel-heading">
-					<h3 id="select-panel-title" class="panel-title"></h3>
-				</div>
-				<div class="panel-body">
+                        <div id="content" class="tab-content">
+                            <div class="tab-pane active" id="home">
+			        <div>
+				    <p class="lead">"There can be no keener revelation of a society's soul than the way in which it treats its children”, said Nelson Mandela. But how does India treat its children?
+                                    </p>
+                                    <p class="lead"> 
+                                    Everyday there are several cases of crimes against children reported in the media. There are statistics and reports published by various organizations. We know from them that the crimes against children are prevalent and serious. But often the information is scattered and might not holistically convey the situation and its severity. Here is beginning of an attempt to bring all information at one place, create interactive maps and visualizations, explore patterns and provide basis for causal explanations of the crimes based on these patterns and geographic distribution. We also hope to raise awareness and suggest improvements by applying the best practices of data science and algorithms.</p>
+                                    <p class="lead">  
+                                    The data has been taken from <a href="http://data.gov.in/"> Open Government Data (OGD) Platform India</a> and refers to district wise details on crimes against children under various crime categories. 
+                                    </p>
+			        </div>
+			        <div id="select-panel" class="panel panel-default">
+				    <div class="panel-heading">
+				        <h3 id="select-panel-title" class="panel-title"></h3>
+				    </div>
+				    <div class="panel-body">
                                         <div class="col-xs-4">
 					    <span class="panel-title">Year:</span>
                                             <select id="year-list" class="selectpicker">
@@ -75,10 +81,29 @@
 						    <option value="11">Other Crimes</option> 
     					    </select>
                                         </div>  
-				</div>
-			</div>
-			<div id="progress" class="progress progress-striped active"><div id="progress-bar" class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width: 30%">Loading</div></div>
-			<div id="map"></div>
+				    </div>
+			        </div>
+			        <div id="progress" class="progress progress-striped active"><div id="progress-bar" class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width: 30%">Loading</div></div>
+			        <div id="map"></div>
+                            </div>
+                            <div class="tab-pane" id="about">
+				<p class="lead">We are a group of data science enthusiasts who are helping NGOs collect and analyse their data to make better and informed data driven decisions and have larger impact.</p>
+                                <br/>
+                                <div>
+                                    <div class="col-xs-4">
+                                        <img src="assets/img/profiles/gaurav.png" class="img-circle"/> 
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h3>Gaurav Godhwani</h3>
+                                        <p class="lead">A technophillic with a vision to harness power of data science for human well being</p>
+                                        <a class="col-xs-1" href="mailto:gggodhwani@gmail.com" target="_blank"><img src="assets/img/icons/gmail.png"/></a>
+                                        <a class="col-xs-1" href="http://github.com/gggodhwani" target="_blank"><img src="assets/img/icons/github.png"/></a>
+                                        <a class="col-xs-1" href="http://in.linkedin.com/pub/gaurav-godhwani/23/978/878" target="_blank"><img src="assets/img/icons/linkedin.png"/></a>
+                                        <a class="col-xs-1" href="http://twitter.com/gggodhwani" target="_blank"><img src="assets/img/icons/twitter.png"/></a>
+                                    </div>
+                                </div>  
+                            </div>
+                        </div>
 		</div>	
 		<script src="assets/js/google-maps.js"></script>
 		<script src="assets/js/jquery.min.js" type="text/javascript"></script>
@@ -129,7 +154,7 @@
                                 for(state in crimes.data[year])
                                 {
                                     marker_list = [];
-                                    $("#select-panel-title").text("Displaying Data of Year " + year);
+                                    $("#select-panel-title").text("Displaying Data for the year " + year);
                                     if(!is_states_populated)
                                     {    
                                         $("#states-list").append('<option value="' + state.toLowerCase().replace(/ /g, "_") +'">' + state + '</option>');
@@ -215,6 +240,10 @@
 					map.setView(new L.LatLng(json["center"][0], json["center"][1]), zoom_level);
 				});
 			});
+                        $('#menu-tab a').click(function (e) {
+                              e.preventDefault()
+                                $(this).tab('show')
+                        })
 		</script>
 	</body>	
 </html>
